@@ -1,9 +1,14 @@
-import urllib
+from lxml import html
+import requests
 
-padx = "http://www.puzzledragonx.com"
+page = requests.get("http://www.puzzledragonx.com/en/monsterbook.asp")
+tree = html.fromstring(page.content)
 
-pad_handle = urllib.urlopen(padx)
+hrefs = tree.xpath('//td[@class="index"]/div[@class="indexframe"]/a')
+#monsters = monsters[-1]
 
-html = pad_handle.read()
+monsterlinks = []
+for href in hrefs:
+	monsterlinks.append("http://www.puzzledragonx.com/en/" + href.attrib['href'])
 
-print html
+print monsterlinks
