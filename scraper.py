@@ -1,4 +1,5 @@
 from lxml import html
+from lxml.etree import tostring
 import requests
 import re
 import sys
@@ -22,7 +23,7 @@ print("Parsing monster information")
 monster_image_urls = []
 max = 1
 monsters = []
-for mon_id in range(2972,2973):
+for mon_id in range(126,127):
 	page = requests.get(monster_urls[mon_id])
 	tree = html.fromstring(page.content)
 
@@ -66,4 +67,38 @@ for mon_id in range(2972,2973):
 	monster.leader_skill_description = tree.xpath('//div[@id="content"]//td[@class="title" and text()="Effects:"]/following-sibling::td/text()')[1]
 	monster.awakenings = [re.search('^(.*?)(?=\r\n)', x.attrib['title']).group(0) for x in tree.xpath('//div[@id="content"]//td[@class="awoken1"]/a/img')]
 
-	monster.info()
+	### Grab evolutions
+	### Grab the evolution and material rows
+	evolution_rows = tree.xpath('//span[@id="evolve"]/following-sibling::table//td[@class="evolve" or @class="awokenevolve"]/..')
+	material_rows = tree.xpath('//span[@id="evolve"]/following-sibling::table//td[@class="require" or @class="finalevolve nowrap" or @class="finalawokenevolve nowrap"]/..')
+
+	print(str(evolution_rows))
+	print(str(material_rows))
+
+	evolution_tuples = []
+
+	### Work through the first row to determine the base form for all subsequent evolution rows
+	evo_row = evolution_rows[0]
+	mat_row = material_rows[0]
+	evolutions = evo_row.xpath('./td[@class="evolve" or @class="awokenevolve"]/div/div/text()')
+	materials = [[re.search('[0-9]+', y.attrib['href']).group(0) for y in x.xpath('./a')] for x in mat_row.xpath('./td[@class="require" or @class="finalevolve nowrap" or @class="finalawokenevolve nowrap"]')]
+
+	print(str(evolutions))
+	print(str(materials))
+
+	### Create tuples for each evolution pair in the first row and save the last evolution to be used as the base for the subsequent rows
+	base = ""
+	for i in range(len(evolutions)):
+		if i == len(evolutions) - 1:
+			base = evolutions[i]
+		else:
+			evolution_tuples.append((evolutions[i], materials[i], evolutions[i+1]))
+
+	print(str(evolution_tuples))
+
+	### Work through all subsequent rows using the previously determined base form for the first evolution pair in each row
+	# for evo_row, mat_row in evolution_rows[1:], material_rows[1:]:
+	# 	evolutions = evo_row
+
+
+	# monster.info()
