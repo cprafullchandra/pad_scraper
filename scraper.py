@@ -8,24 +8,23 @@ from monster import Monster
 
 class Scraper:
     """ Scraper class for parsing data from padx """
-    pad_url = None
+    pad_url = "http://www.puzzledragonx.com/en/"
+    page_url = "http://www.puzzledragonx.com/en/monsterbook.asp"
     monster_urls = None
     last = 0
     backup = None
+
 
     # XPath Macros
     # !! TODO - Bring macros here: requires add self. to all calls to them
 
     # !! TODO - Check for "dump.txt" on boot, pass to parse
     @ErrorHandler
-    def __init__(self, index=0, url="http://www.puzzledragonx.com/en/",
-                    page="http://www.puzzledragonx.com/en/monsterbook.asp",
-                    backup="dump.txt"):
+    def __init__(self, index=0, backup="dump.txt"):
         """ Initializes class variables and starts the parsing process """
         print("Retrieving monsters from padx")
         self.backup = backup
-        self.pad_url = url
-        page = requests.get(page)
+        page = requests.get(self.page_url)
         tree = html.fromstring(page.content)
         hrefs = tree.xpath('//td[@class="index"]/div[@class="indexframe"]/a')
 
@@ -176,8 +175,8 @@ def main(args):
     count = len(args)
     if count == 1:
         scraper = Scraper()
-    elif count == 5:
-        scraper = Scraper(index=args[1], url=args[2], page=args[3], backup=args[4])
+    elif count == 3:
+        scraper = Scraper(index=args[1], backup=args[2])
     else:
         print("Invalid arguments.")
         sys.exit(1)
