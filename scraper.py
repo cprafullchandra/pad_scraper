@@ -46,101 +46,71 @@ class Scraper:
         monster = Monster()
 
         ### Temp Location for macros
-        wild = '//'
-        up = '/../'
-        dup = '/../../'
-        monster_div = 'div[@id="monster"]'
-        content_div = 'div[@id="content"]'
-        stars_div = 'div[@class="stars"]'
-        profile_div = 'div[@id="compareprofile"]'
-        chart_div = 'div[@id="comparechart"]'
-        avatar = 'div[@class="avatar"]'
-        name = 'div[@class="name"]'
-        data = 'td[@class="data"]'
-        data_jp = 'td[@class="data jap"]'
-        ptitle = 'td[@class="ptitle" and '
+        avatar_d = 'div[@class="avatar"]'
+        chart_d = 'div[@id="comparechart"]'
+        content_d = 'div[@id="content"]'
+        monster_d = 'div[@id="monster"]'
+        name_d = 'div[@class="name"]'
+        profile_d = 'div[@id="compareprofile"]'
+        stars_d = 'div[@class="stars"]'
+        evolve = 'span[@id="evolve"]'
+        mpoint  = 'span[@title="Monster Point"]'
+
         tablestat = 'table[@id="tablestat"]'
+        data    = 'td[@class="data"]'
+        data_jp = 'td[@class="data jap"]'
+        attack = 'td[text()="ATK"]'
         level = 'td[text()="Level"]'
         health = 'td[text()="HP"]'
-        attack = 'td[text()="ATK"]'
         rcv = 'td[text()="RCV"]'
-        text_e = 'text()="Element:"]'
-        text_t = 'text()="Type:"]'
-        text_c = 'text()="Cost:"]'
-        text = 'text()'
-        monster_point = 'span[@title="Monster Point"]'
+
         img = 'img'
-        f_sibling = 'following-sibling::td/'
+        sibling = 'following-sibling::td/'
+        text = 'text()'
 
         ### Get monster information from tables
         monster.id = mon_id
-        #monster.image = pad_url + tree.xpath('//div[@id="monster"]/a')[0].attrib['href']
-        monster.image = self.pad_url + tree.xpath(wild+monster_div+'/a')[0].attrib['href']
-        #monster.avatar = pad_url + tree.xpath('//div[@id="content"]/div[@class="avatar"]/img')[0].attrib['src']
-        monster.avatar = self.pad_url + tree.xpath(wild+content_div+'/'+avatar+'/'+img)[0].attrib['src']
+        monster.image = self.pad_url + tree.xpath('//'+monster_d+'/a')[0].attrib['href']
+        monster.avatar = self.pad_url + tree.xpath('//'+content_d+'/'+avatar_d+'/'+img)[0].attrib['src']
 
         ### Table 1 info
-        #monster.en_name = tree.xpath('//div[@id="content"]/div[@class="name"]//text()')[0]
-        monster.en_name = tree.xpath(wild+content_div+'/'+name+wild+text)[0]
-        #monster.jp_name = tree.xpath('//div[@id="content"]//td[@class="data jap"]/text()')[0]
-        monster.jp_name = tree.xpath(wild+content_div+wild+data_jp+'/'+text)
-        #monster.type = tree.xpath('//div[@id="content"]//td[@class="ptitle" and text()="Type:"]/../td[@class="data"]/a/text()')
-        monster.type = tree.xpath(wild+content_div+wild+ptitle+text_t+up+data+'/a/'+text)
-        #monster.element = tree.xpath('//div[@id="content"]//td[@class="ptitle" and text()="Element:"]/../td[@class="data"]/a/text()')
-        monster.element = tree.xpath(wild+content_div+wild+ptitle+text_e+up+data+'/a/'+text)
-        #monster.rarity = int(tree.xpath('count(//div[@id="content"]/div[@class="stars"]/img)'))
-        monster.rarity = int(tree.xpath('count('+wild+content_div+'/'+stars_div+'/'+img+')'))
-        #monster.cost = int(tree.xpath('//div[@id="content"]//td[@class="ptitle" and text()="Cost:"]/../td[@class="data"]/a/text()')[0])
-        monster.cost = int(tree.xpath(wild+content_div+wild+ptitle+text_c+up+data+'/a/'+text)[0])
-        #monster.monsterpoints = int(tree.xpath('//div[@id="content"]//span[@title="Monster Point"]/../../td[@class="data"]/text()')[0])
-        monster.monsterpoints = int(tree.xpath(wild+content_div+wild+monster_point+dup+data+'/'+text)[0])
-        #monster.expcurve = int(tree.xpath('//div[@id="compareprofile"]/table[@id="tablestat"]//td[contains(.,"Growth Curve")]/a/text()')[0].replace(',',''))
-        monster.expcurve = int(tree.xpath(wild+profile_div+'/'+tablestat+wild+'td[contains(.,"Growth Curve")]/a/'+text)[0].replace(',',''))
-        #monster.maxexp = int(re.search('[0-9]+',tree.xpath('//div[@id="compareprofile"]/table[@id="tablestat"]//td[contains(.,"Exp to max")]/text()')[0].replace(',','')).group(0))
-        monster.maxexp = int(re.search('[0-9]+',tree.xpath(wild+profile_div+'/'+tablestat+wild+'td[contains(.,"Exp to max")]/'+text)[0].replace(',','')).group(0))
+        monster.en_name = tree.xpath('//'+content_d+'/'+name_d+'//'+text)[0]
+        monster.jp_name = tree.xpath('//'+content_d+'//'+data_jp+'/'+text)
+        monster.type = tree.xpath('//'+content_d+'//td[@class="ptitle" and text()="Type:"]/../'+data+'/a/'+text)
+        monster.element = tree.xpath('//'+content_d+'//td[@class="ptitle" and text()="Element:"]/../'+data+'/a/'+text)
+        monster.rarity = int(tree.xpath('count(//'+content_d+'/'+stars_d+'/'+img+')'))
+        monster.cost = int(tree.xpath('//'+content_d+'//td[@class="ptitle" and text()="Cost:"]/../'+data+'/a/'+text)[0])
+        monster.monsterpoints = int(tree.xpath('//'+content_d+'//'+mpoint+'/../../'+data+'/'+text)[0])
+        monster.expcurve = int(tree.xpath('//'+profile_d+'/'+tablestat+'//td[contains(.,"Growth Curve")]/a/'+text)[0].replace(',',''))
+        monster.maxexp = int(re.search('[0-9]+',tree.xpath('//'+profile_d+'/'+tablestat+'//td[contains(.,"Exp to max")]/'+text)[0].replace(',','')).group(0))
 
         ### Table 3 info
-        #monster.minlvl = int(tree.xpath('//div[@id="comparechart"]//td[text()="Level"]/following-sibling::td/text()')[0])
-        monster.minlvl = int(tree.xpath(wild+chart_div+wild+level+'/'+f_sibling+text)[0])
-        #monster.maxlvl = int(tree.xpath('//div[@id="comparechart"]//td[text()="Level"]/following-sibling::td/following-sibling::td/text()')[0])
-        monster.maxlvl = int(tree.xpath(wild+chart_div+wild+level+'/'+f_sibling+f_sibling+text)[0])
-        #monster.basehp = int(tree.xpath('//div[@id="comparechart"]//td[text()="HP"]/following-sibling::td/text()')[0])
-        monster.basehp = int(tree.xpath(wild+chart_div+wild+health+'/'+f_sibling+text)[0])
-        #monster.maxhp = int(tree.xpath('//div[@id="comparechart"]//td[text()="HP"]/following-sibling::td/following-sibling::td/text()')[0])
-        monster.maxhp = int(tree.xpath(wild+chart_div+wild+health+'/'+f_sibling+f_sibling+text)[0])
-        #monster.baseatk = int(tree.xpath('//div[@id="comparechart"]//td[text()="ATK"]/following-sibling::td/text()')[0])
-        monster.baseatk = int(tree.xpath(wild+chart_div+wild+attack+'/'+f_sibling+text)[0])
-        #monster.maxatk = int(tree.xpath('//div[@id="comparechart"]//td[text()="ATK"]/following-sibling::td/following-sibling::td/text()')[0])
-        monster.maxatk = int(tree.xpath(wild+chart_div+wild+attack+'/'+f_sibling+f_sibling+text)[0])
-        #monster.basercv = int(tree.xpath('//div[@id="comparechart"]//td[text()="RCV"]/following-sibling::td/text()')[0])
-        monster.basercv = int(tree.xpath(wild+chart_div+wild+rcv+'/'+f_sibling+text)[0])
-        #monster.maxrcv = int(tree.xpath('//div[@id="comparechart"]//td[text()="RCV"]/following-sibling::td/following-sibling::td/text()')[0])
-        monster.maxrcv = int(tree.xpath(wild+chart_div+wild+rcv+'/'+f_sibling+f_sibling+text)[0])
+        monster.minlvl = int(tree.xpath('//'+chart_d+'//'+level+'/'+sibling+text)[0])
+        monster.maxlvl = int(tree.xpath('//'+chart_d+'//'+level+'/'+sibling+sibling+text)[0])
+        monster.basehp = int(tree.xpath('//'+chart_d+'//'+health+'/'+sibling+text)[0])
+        monster.maxhp = int(tree.xpath('//'+chart_d+'//'+health+'/'+sibling+sibling+text)[0])
+        monster.baseatk = int(tree.xpath('//'+chart_d+'//'+attack+'/'+sibling+text)[0])
+        monster.maxatk = int(tree.xpath('//'+chart_d+'//'+attack+'/'+sibling+sibling+text)[0])
+        monster.basercv = int(tree.xpath('//'+chart_d+'//'+rcv+'/'+sibling+text)[0])
+        monster.maxrcv = int(tree.xpath('//'+chart_d+'//'+rcv+'/'+sibling+sibling+text)[0])
         ### Weighted stats are HP/10 + ATK/5 + RCV/3
         # !! TODO - Are these always integer results or do we want decimals?
         monster.minweighted = monster.basehp/10 + monster.baseatk/5 + monster.basercv/3
         monster.maxweighted = monster.maxhp/10 + monster.maxatk/5 + monster.maxrcv/3
 
         ### Table 4 info
-        #monster.active_skill = tree.xpath('//div[@id="content"]//td[@class="title value-normal nowrap" and text()="Active Skill:"]/following-sibling::td/a/span/text()')[0]
-        monster.active_skill = tree.xpath(wild+content_div+wild+'td[@class="title value-normal nowrap" and text()="Active Skill:"]/'+f_sibling+'a/span/'+text)[0]
-        #monster.active_skill_description = tree.xpath('//div[@id="content"]//td[@class="title" and text()="Effects:"]/following-sibling::td/text()')[0]
-        monster.active_skill_description = tree.xpath(wild+content_div+wild+'td[@class="title" and text()="Effects:"]/'+f_sibling+text)[0]
-        #monster.active_skill_cooldown = tree.xpath('//div[@id="content"]//td[@class="title" and text()="Cool Down:"]/following-sibling::td/text()')[0]
-        monster.active_skill_cooldown = tree.xpath(wild+content_div+wild+'td[@class="title" and text()="Cool Down:"]/'+f_sibling+text)[0]
-        #monster.same_active_skill = [re.search('[0-9]+', x.attrib['href']).group(0) for x in tree.xpath('//div[@id="content"]//td[@class="title" and text()="Same Skill:"]/following-sibling::td/a')]
-        monster.same_active_skill = [re.search('[0-9]+', x.attrib['href']).group(0) for x in tree.xpath(wild+content_div+wild+'td[@class="title" and text()="Same Skill:"]/'+f_sibling+'a')]
-        #monster.leader_skill = tree.xpath('//div[@id="content"]//td[@class="title value-normal nowrap" and text()="Leader Skill:"]/following-sibling::td/a/span/text()')[0]
-        monster.leader_skill = tree.xpath(wild+content_div+wild+'td[@class="title value-normal nowrap" and text()="Leader Skill:"]/'+f_sibling+'a/span/'+text)[0]
-        #monster.leader_skill_description = tree.xpath('//div[@id="content"]//td[@class="title" and text()="Effects:"]/following-sibling::td/text()')[1]
-        monster.leader_skill_description = tree.xpath(wild+content_div+wild+'td[@class="title" and text()="Effects:"]/'+f_sibling+text)[1]
-        #monster.awakenings = [re.search('^(.*?)(?=\r\n)', x.attrib['title']).group(0) for x in tree.xpath('//div[@id="content"]//td[@class="awoken1"]/a/img')]
-        monster.awakenings = [re.search('^(.*?)(?=\r\n)', x.attrib['title']).group(0) for x in tree.xpath(wild+content_div+wild+'td[@class="awoken1"]/a/'+img)]
+        monster.active_skill = tree.xpath('//'+content_d+'//td[@class="title value-normal nowrap" and text()="Active Skill:"]/'+sibling+'a/span/'+text)[0]
+        monster.active_skill_description = tree.xpath('//'+content_d+'//td[@class="title" and text()="Effects:"]/'+sibling+text)[0]
+        monster.active_skill_cooldown = tree.xpath('//'+content_d+'//td[@class="title" and text()="Cool Down:"]/'+sibling+text)[0]
+        monster.same_active_skill = [re.search('[0-9]+', x.attrib['href']).group(0) for x in tree.xpath('//'+content_d+'//td[@class="title" and text()="Same Skill:"]/'+sibling+'a')]
+        monster.leader_skill = tree.xpath('//'+content_d+'//td[@class="title value-normal nowrap" and text()="Leader Skill:"]/'+sibling+'a/span/'+text)[0]
+        monster.leader_skill_description = tree.xpath('//'+content_d+'//td[@class="title" and text()="Effects:"]/'+sibling+text)[1]
+        monster.awakenings = [re.search('^(.*?)(?=\r\n)', x.attrib['title']).group(0) for x in tree.xpath('//'+content_d+'//td[@class="awoken1"]/a/'+img)]
 
         ### Grab evolutions
         ### Grab the evolution and material rows
-        evolution_rows = tree.xpath('//span[@id="evolve"]/following-sibling::table//td[@class="evolve" or @class="awokenevolve"]/..')
-        material_rows = tree.xpath('//span[@id="evolve"]/following-sibling::table//td[@class="require" or @class="finalevolve nowrap" or @class="finalawokenevolve nowrap"]/..')
+        evolution_rows = tree.xpath('//'+evolve+'/following-sibling::table//td[@class="evolve" or @class="awokenevolve"]/..')
+        material_rows = tree.xpath('//'+evolve+'/following-sibling::table//td[@class="require" or @class="finalevolve nowrap" or @class="finalawokenevolve nowrap"]/..')
 
         ### Work through the first row to determine the base form for all subsequent evolution rows
         evo_row = evolution_rows[0]

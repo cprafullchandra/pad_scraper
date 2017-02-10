@@ -4,5 +4,6 @@ def ErrorHandler(function):
         try:
             return function(*args, **kwargs)
         except Exception as e:
+            print(sys.exc_info())
             print(e)
     return wrapper
